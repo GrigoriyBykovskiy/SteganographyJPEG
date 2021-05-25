@@ -26,7 +26,7 @@ namespace SteganographyJPEG
             var filePath = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "BMP files (*.bmp)|*.bmp|All files (*.*)|*.*";
+                openFileDialog.Filter = "TXT files (*.txt)|*.txt|All files (*.*)|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
@@ -47,7 +47,7 @@ namespace SteganographyJPEG
             var filePath = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "BMP files (*.bmp)|*.bmp|All files (*.*)|*.*";
+                openFileDialog.Filter = "JPEG files (*.jpg)|*.jpg|All files (*.*)|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try

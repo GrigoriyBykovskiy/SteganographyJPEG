@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace SteganographyJPEG
@@ -10,9 +11,10 @@ namespace SteganographyJPEG
     {
         public string FilePath;
         public Bitmap Image;
+
         public List<Color[,]> Blocks;
         // and another data
-        
+
         public SteganoContainer(string pathFile)
         {
             this.FilePath = pathFile;
@@ -23,49 +25,42 @@ namespace SteganographyJPEG
 
         public void InitBlocks(uint height, uint weight) // block params
         {
-            for (var row = 0; row < Image.Height; row++)
+            for (uint row = 0; row < Image.Height; row += height)
             {
-                //add chunk to blocks
-                if (row % height == 0)
+                for (uint  column = 0; column < Image.Width; column += weight)
                 {
-                    for (var i = 0; i < (Image.Width / weight); i++)
+                    Rectangle cloneRect = new Rectangle((int)column, (int)row, (int)weight, (int)height);
+                    PixelFormat format = Image.PixelFormat;
+                    Bitmap cloneBitmap = Image.Clone(cloneRect, format);
+                    Color[,] buf = new Color[height, weight];
+                    for (uint i = 0; i < height; i++)
                     {
-                        Color [,] buf = new Color[height, weight];
-                        Blocks.Insert(0, buf);
+                        for (uint k = 0; k < weight; k++)
+                        {
+                            buf[i, k] = cloneBitmap.GetPixel((int)k, (int)i);
+                        }
                     }
-                }
-                
-                var count = 0;//list index
-                for (var column = 0; column < Image.Width; column++)
-                {
-                    if (column % weight == 0 && column != 0)
-                    {
-                        count++;
-                    }
-                    Color [,] buf = Blocks[count];
-                    buf[row % height, column % weight] = Image.GetPixel(column, row);
+                    Blocks.Add(buf);
                 }
             }
         }
 
         public void TestWriteImage(uint height, uint weight)// block params
         {
-            Blocks.Reverse();
-            for (var row = 0; row < Image.Height; row++)
+            var count = 0;
+            for (uint row = 0; row < Image.Height; row += height)
             {
-                var count = 0;//list index
-                for (var column = 0; column < Image.Width; column++)
+                for (uint  column = 0; column < Image.Width; column += weight)
                 {
-                    if (column % weight == 0 && column != 0)
+                    Color[,] buf = Blocks[count];
+                    for (uint i = 0; i < height; i++)
                     {
-                        count++;
+                        for (uint k = 0; k < weight; k++)
+                        {
+                            Image.SetPixel((int)(k + column), (int)(i + row), buf[i, k]);
+                        }
                     }
-                    Color buf = Blocks[count][row % height, column % weight];
-                    Image.SetPixel(column, row, buf);
-                }
-                if (row % height == 0 && row != 0)
-                {
-                    Blocks.RemoveRange(0, (int)(Image.Width / weight));
+                    count++;
                 }
             }
             Image.Save(Directory.GetCurrentDirectory() + "/test.bmp", ImageFormat.Bmp);
