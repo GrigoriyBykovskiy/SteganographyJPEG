@@ -44,8 +44,14 @@ namespace SteganographyJPEG
                 {
                     for (uint k = 0; k < 8; k++)
                     {
+                        if (EncodeCoefficientForWrite[counter][i, k] < 0)
+                            buf[i, k] = 0;
+                        else if (EncodeCoefficientForWrite[counter][i, k] > 255)
+                            buf[i, k] = 255;
+                        else
+                            buf[i, k] = (byte)Math.Round(EncodeCoefficientForWrite[counter][i, k]);// wrong, need to fix                       
                         //var test = BitConverter.GetBytes(EncodeCoefficientForWrite[counter][i, k]);
-                        buf[i, k] = (byte)Math.Round(EncodeCoefficientForWrite[counter][i, k]);// wrong, need to fix
+
                     }
                 }
                 container.BlueComponent[counter] = buf;
