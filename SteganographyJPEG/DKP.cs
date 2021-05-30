@@ -68,7 +68,7 @@ namespace SteganographyJPEG
         }
 
 
-        public static double[,] CoefficientChange(double[,] temp, int i, int u1, int v1, int u2, int v2, int P)
+        public static double[,] CoefficientChange(double[,] temp, char/*int*/ i, int u1, int v1, int u2, int v2, int P)
         {
             /*
              double - матрица коэффициентов
@@ -90,12 +90,12 @@ namespace SteganographyJPEG
             if (temp[u2, v2] >= 0) z2 = 1;
             else z2 = -1;
  
-            if (i == 0)
+            if (i == '0')//if (i == 0)
             {
                 if (Abs1 - Abs2 <= P)
                     Abs1 = P + Abs2 + 1;
             }
-            if (i == 1)
+            if (i == '1')//if (i == 1)
             {
                 if (Abs1 - Abs2 >= -P)
                     Abs2 = P + Abs1 + 1;

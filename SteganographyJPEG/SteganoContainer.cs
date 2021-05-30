@@ -11,8 +11,8 @@ namespace SteganographyJPEG
     {
         public string FilePath;
         public Bitmap Image;
-
         public List<Color[,]> Blocks;
+        public List<byte [,]> BlueComponent;
         // and another data
 
         public SteganoContainer(string pathFile)
@@ -20,6 +20,7 @@ namespace SteganographyJPEG
             this.FilePath = pathFile;
             this.Image = new Bitmap(pathFile);
             this.Blocks = new List<Color[,]>();
+            this.BlueComponent = new List<byte[,]>();
             // and another code for parse data
         }
 
@@ -42,6 +43,39 @@ namespace SteganographyJPEG
                     }
                     Blocks.Add(buf);
                 }
+            }
+        }
+        
+        public void InitBlueComponent(uint height, uint weight) // block params
+        {
+            foreach (var block in Blocks)
+            {
+                byte[,] buf = new byte[height, weight];;
+                for (uint i = 0; i < height; i++)
+                {
+                    for (uint k = 0; k < weight; k++)
+                    {
+                        buf[i, k] = block[i, k].B;
+                    }
+                }
+                this.BlueComponent.Add(buf);
+            }
+        }
+        
+        public void InsertBlueComponent(uint height, uint weight) // block params
+        {
+            for (var counter = 0; counter < Blocks.Count; counter++)
+            {
+                var buf = new Color[height, weight];
+                for (uint i = 0; i < height; i++)
+                {
+                    for (uint k = 0; k < weight; k++)
+                    {
+                        buf[i, k] = Color.FromArgb(Blocks[counter][i, k].A,Blocks[counter][i, k].R, Blocks[counter][i, k].G, BlueComponent[counter][i, k]);
+                    }
+                }
+
+                Blocks[counter] = buf;
             }
         }
 

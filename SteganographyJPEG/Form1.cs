@@ -90,6 +90,9 @@ namespace SteganographyJPEG
             {
                 Transformation = new SteganoTransformation();
                 ContainerForEncode.InitBlocks(8, 8);
+                ContainerForEncode.InitBlueComponent(8, 8);
+                Transformation.Encode(ContainerForEncode, InputMessage, 2);
+                ContainerForEncode.InsertBlueComponent(8, 8);
                 ContainerForEncode.TestWriteImage(8, 8);
                 //MessageBox.Show("Анта бака!\nНо все хорошо!\n" + ContainerForEncode.FilePath + InputMessage.FilePath, "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -104,11 +107,15 @@ namespace SteganographyJPEG
             try
             {
                 Transformation = new SteganoTransformation();
-                MessageBox.Show("Анта бака!\nНо все хорошо!\n" + ContainerForDecode.FilePath, "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ContainerForDecode.InitBlocks(8, 8);
+                ContainerForDecode.InitBlueComponent(8, 8);
+                var test = Transformation.Decode(ContainerForDecode, 2);
+                Console.WriteLine(test);
+                //MessageBox.Show("Анта бака!\nНо все хорошо!\n" + ContainerForDecode.FilePath, "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception excptn)
             {
-                MessageBox.Show("Анта бака!\nОшибка при кодировании!\n" + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Анта бака!\nОшибка при декодировании!\n" + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
