@@ -110,7 +110,6 @@ namespace SteganographyJPEG
                 ContainerForDecode.InitBlocks(8, 8);
                 ContainerForDecode.InitBlueComponent(8, 8);
                 var test = Transformation.Decode(ContainerForDecode, 2);
-                Console.WriteLine(test);
                 //MessageBox.Show("Анта бака!\nНо все хорошо!\n" + ContainerForDecode.FilePath, "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception excptn)

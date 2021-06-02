@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Windows.Forms;
 
 namespace SteganographyJPEG
 {
@@ -9,13 +11,39 @@ namespace SteganographyJPEG
         public List<double[,]> EncodeCoefficientForWrite = new List<double[,]>();
         public List<double[,]> DecodeCoefficient = new List<double[,]>();
         public List<double[,]> DecodeCoefficientForWrite = new List<double[,]>();
-        public int u1 = 0; //Координаты коэффициентов, которые будем менять
-        public int v1 = 0;
-        public int u2 = 1;
-        public int v2 = 1;
-        public int P = 25; //Порог измененеия коэффициентов
-        //public string message;
+        public int u1 = 4; //Координаты коэффициентов, которые будем менять
+        public int v1 = 4;
+        public int u2 = 5;
+        public int v2 = 5;
+        public int P = 250; //Порог измененеия коэффициентов
 
+        public string GetBinaryStringFromUInt32(UInt32 value)
+        {
+            var binaryString = new StringBuilder();
+            foreach (byte b in BitConverter.GetBytes(value))
+                binaryString.Insert(0, Convert.ToString(b, 2).PadLeft(8, '0'));
+            return binaryString.ToString();
+        }
+
+        public UInt32 GetUInt32FromBinaryString(string value)
+        {
+            var arrDataLength = new byte[value.Length / 8];
+            var countTmp = 0;
+            
+            for (var i = 0; i < value.Length; i += 8)
+            {
+                var ss = value.Substring(countTmp * 8, 8);
+                var bv = Convert.ToByte(ss, 2);
+                arrDataLength[i / 8] = bv;
+                countTmp++;
+            }
+
+            Array.Reverse(arrDataLength, 0, 4);
+            
+            UInt32 outputData = BitConverter.ToUInt32(arrDataLength, 0);
+
+            return outputData;
+        }
 
         public void Encode(SteganoContainer container, SteganoMessage steganoMessage, int key)
         {
@@ -26,7 +54,7 @@ namespace SteganographyJPEG
             }
 
             //Меняем коэффициенты ДКП
-            for (int i = 0; i < steganoMessage.DataBinaryString.Length; i++) // Data долже быть не массивом байт, в строкой или массивом бит
+            for (int i = 0; i < steganoMessage.DataBinaryString.Length; i++)
             {
                 EncodeCoefficient[i] = DKP.CoefficientChange(EncodeCoefficient[i], steganoMessage.DataBinaryString[i], u1, v1, u2, v2, P); 
             }
@@ -36,7 +64,7 @@ namespace SteganographyJPEG
                 EncodeCoefficientForWrite.Add(DKP.Odkp(block));
             }
             
-            // add code for change BlueComponent in container
+            // change BlueComponent in container
             for (var counter = 0; counter < container.BlueComponent.Count; counter++)
             {
                 byte[,] buf = new byte[8, 8];
@@ -49,7 +77,7 @@ namespace SteganographyJPEG
                         else if (EncodeCoefficientForWrite[counter][i, k] > 255)
                             buf[i, k] = 255;
                         else
-                            buf[i, k] = (byte)Math.Round(EncodeCoefficientForWrite[counter][i, k]);// wrong, need to fix                       
+                            buf[i, k] = (byte)Math.Round(EncodeCoefficientForWrite[counter][i, k]);                     
                         //var test = BitConverter.GetBytes(EncodeCoefficientForWrite[counter][i, k]);
 
                     }
