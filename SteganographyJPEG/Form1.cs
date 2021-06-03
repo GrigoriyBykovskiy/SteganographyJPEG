@@ -103,6 +103,7 @@ namespace SteganographyJPEG
                 Transformation.Encode(ContainerForEncode, InputMessage, key);
                 ContainerForEncode.InsertBlueComponent(8, 8);
                 ContainerForEncode.SaveImage(8, 8, "encode_output.jpg");
+                textBoxGetEncodeKey.Text = "";
                 
                 MessageBox.Show("Успешно!\nФайл находится в директории:\n" + Directory.GetCurrentDirectory(), "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -131,7 +132,9 @@ namespace SteganographyJPEG
                 ContainerForDecode.InitBlueComponent(8, 8);
                 Transformation.Decode(ContainerForDecode, OutputMessage, key);
                 OutputMessage.SaveMessage("decode_output.txt");
-                
+                textBoxGetDecodeKey.Text = "";
+
+
                 MessageBox.Show("Успешно!\nФайл находится в директории:\n" + Directory.GetCurrentDirectory(), "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception excptn)
