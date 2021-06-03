@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace SteganographyJPEG
@@ -18,11 +19,16 @@ namespace SteganographyJPEG
             try
             {
                 StatParams = new StatisticalCharacteristics();
-                MessageBox.Show("Анта бака!\nНо все хорошо!\n", "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Color maxDifference = StatParams.getMaxDifference(_mainForm.ContainerForEncode, _mainForm.ContainerForDecode);
+                string maxDifferenceAlpha = Convert.ToString(maxDifference.A, 2).PadLeft(8,'0');
+                string maxDifferenceRed = Convert.ToString(maxDifference.R, 2).PadLeft(8,'0');
+                string maxDifferenceGreen = Convert.ToString(maxDifference.G, 2).PadLeft(8,'0');
+                string maxDifferenceBlue = Convert.ToString(maxDifference.B, 2).PadLeft(8,'0');
+                textBoxMaxDifference.Text = "Alpha: " + maxDifferenceAlpha + " Red: " + maxDifferenceRed + " Green: " + maxDifferenceGreen + " Blue: " + maxDifferenceBlue;
             }
             catch (Exception excptn)
             {
-                MessageBox.Show("Анта бака!\nОшибка при расчете характеристик!\n" + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Анта бака!\nОшибка при расчете характеристик!\n" + excptn.Message + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
         }

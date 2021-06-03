@@ -79,9 +79,13 @@ namespace SteganographyJPEG
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 553);
+            this.ClientSize = new System.Drawing.Size(594, 565);
             this.Controls.Add(this.groupBoxStatisticalCharacteristics);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximumSize = new System.Drawing.Size(600, 600);
+            this.MinimumSize = new System.Drawing.Size(600, 600);
             this.Name = "Form2";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SteganographyJPEGStatParams";
             this.groupBoxStatisticalCharacteristics.ResumeLayout(false);
             this.groupBoxStatisticalCharacteristics.PerformLayout();

@@ -196,11 +196,15 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 553);
+            this.ClientSize = new System.Drawing.Size(594, 565);
             this.Controls.Add(this.buttonGetStatParams);
             this.Controls.Add(this.groupBoxEncode);
             this.Controls.Add(this.groupBoxDecode);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximumSize = new System.Drawing.Size(600, 600);
+            this.MinimumSize = new System.Drawing.Size(600, 600);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SteganographyJPEG";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBoxEncode.ResumeLayout(false);

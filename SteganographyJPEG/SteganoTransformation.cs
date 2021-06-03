@@ -10,12 +10,12 @@ namespace SteganographyJPEG
         public List<double[,]> EncodeCoefficient = new List<double[,]>();
         public List<double[,]> EncodeCoefficientForWrite = new List<double[,]>();
         public List<double[,]> DecodeCoefficient = new List<double[,]>();
-        public List<double[,]> DecodeCoefficientForWrite = new List<double[,]>();
+
         public int u1 = 4; //Координаты коэффициентов, которые будем менять
         public int v1 = 4;
         public int u2 = 5;
         public int v2 = 5;
-        public int P = 250; //Порог измененеия коэффициентов
+        public int P = 250; //Порог изменения коэффициентов
 
         public string GetBinaryStringFromUInt32(UInt32 value)
         {
@@ -50,7 +50,7 @@ namespace SteganographyJPEG
             for (int i = data.Length - 1; i >= 1; i--)
             {
                 int j = random.Next(i + 1);
-                // обменять значения data[j] и data[i]
+                // swap value data[j] and data[i]
                 var temp = data[j];
                 data[j] = data[i];
                 data[i] = temp;
@@ -61,6 +61,11 @@ namespace SteganographyJPEG
         }
         public void Encode(SteganoContainer container, SteganoMessage steganoMessage, int key)
         {
+            if (steganoMessage.Size + 32 > container.Blocks.Count)
+            {
+                throw new Exception("Размер контейнера слишком мал, сэмпай!");
+            }
+
             //Применили дкп ко всем блокам 8х8
             foreach (var block in container.BlueComponent)
             {
@@ -69,30 +74,34 @@ namespace SteganographyJPEG
 
             Random rnd = new Random(key);
             bool[] data = new bool[container.BlueComponent.Count - 32];
+            
             for (int i = 0; i < steganoMessage.DataBinaryString.Length; i++)
             {
                 data[i] = true;
             }
 
             var distribution = Shuffle(data, rnd);
-
-
-
-
-            //Меняем коэффициенты ДКП
-            /*for (int i = 0; i < steganoMessage.DataBinaryString.Length; i++)
+            var steganoMessageLength = GetBinaryStringFromUInt32(steganoMessage.Size);
+            
+            // put data about message length in blocks
+            for (int counter = 0; counter < 32; counter++)
             {
-                EncodeCoefficient[i] = DKP.CoefficientChange(EncodeCoefficient[i], steganoMessage.DataBinaryString[i], u1, v1, u2, v2, P); 
-            }*/
+                EncodeCoefficient[counter] = DKP.CoefficientChange(EncodeCoefficient[counter],
+                    steganoMessageLength[counter], u1, v1, u2, v2, P);
+            }
 
             int marker = 32;
 
-
             for (int i = 32; i < container.BlueComponent.Count; i++)
             {
-                if (distribution[i] == true)
+                if (marker == steganoMessage.DataBinaryString.Length + 32)
                 {
-                    EncodeCoefficient[marker] = DKP.CoefficientChange(EncodeCoefficient[marker], steganoMessage.DataBinaryString[marker], u1, v1, u2, v2, P);
+                    break;
+                }
+                
+                if (distribution[i - 32] == true)
+                {
+                    EncodeCoefficient[i] = DKP.CoefficientChange(EncodeCoefficient[i], steganoMessage.DataBinaryString[marker - 32], u1, v1, u2, v2, P);
                     marker += 1;
                 }
                 else
@@ -100,16 +109,8 @@ namespace SteganographyJPEG
                     continue;
                 }
 
-                if (marker == steganoMessage.DataBinaryString.Length + 32)
-                {
-                    break;
-                }
-                
             }
-
-
-
-
+            
             foreach (var block in EncodeCoefficient)
             {
                 EncodeCoefficientForWrite.Add(DKP.Odkp(block));
@@ -128,16 +129,14 @@ namespace SteganographyJPEG
                         else if (EncodeCoefficientForWrite[counter][i, k] > 255)
                             buf[i, k] = 255;
                         else
-                            buf[i, k] = (byte)Math.Round(EncodeCoefficientForWrite[counter][i, k]);                     
-                        //var test = BitConverter.GetBytes(EncodeCoefficientForWrite[counter][i, k]);
-
+                            buf[i, k] = (byte)Math.Round(EncodeCoefficientForWrite[counter][i, k]);
                     }
                 }
                 container.BlueComponent[counter] = buf;
             }
         }
 
-        public string Decode(SteganoContainer container, int key)
+        public void Decode(SteganoContainer container, SteganoMessage steganoMessage, int key)
         {
             // Применили ДКП к блокам 8х8
             foreach (var block in container.BlueComponent)
@@ -149,23 +148,41 @@ namespace SteganographyJPEG
             double Abs2;
             
             string bits = ""; //временная переменная для записи сообщения
-            
-            List<byte> bytetext = new List<byte>(); //извлеченное сообщение
             double[,] dkp_8x8; // временная переменная для одной матрицы 8на8 
+            
+            var steganoMessageLength = "";
+            
+            for (int counter = 0; counter < 32; counter++)
+            {
+                dkp_8x8 = DecodeCoefficient[counter];
+                Abs1 = Math.Abs(dkp_8x8[u1, v1]);
+                Abs2 = Math.Abs(dkp_8x8[u2, v2]);
+                if (Abs1 > Abs2)
+                    steganoMessageLength += "0";
+                if (Abs1 < Abs2)
+                    steganoMessageLength += "1";
+            }
+
+            var steganoMessageLengthUInt32 = GetUInt32FromBinaryString(steganoMessageLength);
+            
+            if (steganoMessageLengthUInt32 + 32 > container.Blocks.Count)
+            {
+                throw new Exception("Контейнер поврежден, сэмпай!");
+            }
 
             Random rnd = new Random(key);
             bool[] data = new bool[container.BlueComponent.Count - 32];
-            for (int i = 0; i < /*steganoMessage.DataBinaryString.Length*/; i++)
+            
+            for (int i = 0; i < steganoMessageLengthUInt32; i++)
             {
                 data[i] = true;
             }
 
             var distribution = Shuffle(data, rnd);
-
-
-            for (int k = 32; k < container.Blocks.Count/*количество сегментов 8х8*/; k++)
+            
+            for (int k = 32; k < container.Blocks.Count; k++)
             {
-                if (distribution[k] == true)
+                if (distribution[k - 32] == true)
                 {
                     dkp_8x8 = DecodeCoefficient[k];
                     Abs1 = Math.Abs(dkp_8x8[u1, v1]);
@@ -179,18 +196,8 @@ namespace SteganographyJPEG
                 {
                     continue;
                 }
-                
-                
-                /*if (bits.Length == 8)
-                {
-                    bytetext.Add(Convert.ToByte(new Bits(bits).Number));// what is this?
-                    bits = "";
-                }*/               
             }
-
-            return bits;
-            //В итоге список bytetext хранит наше сообщение
-
+            steganoMessage.DataBinaryString = bits;
         }
     }
 }

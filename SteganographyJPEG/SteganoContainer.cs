@@ -79,7 +79,7 @@ namespace SteganographyJPEG
             }
         }
 
-        public void TestWriteImage(uint height, uint weight)// block params
+        public void SaveImage(uint height, uint weight, string filename)// block params
         {
             var count = 0;
             for (uint row = 0; row < Image.Height; row += height)
@@ -97,7 +97,7 @@ namespace SteganographyJPEG
                     count++;
                 }
             }
-            Image.Save(Directory.GetCurrentDirectory() + "/test.bmp", ImageFormat.Bmp);
+            Image.Save(Directory.GetCurrentDirectory() + "/" + filename, ImageFormat.Bmp);
         }
     }
 }

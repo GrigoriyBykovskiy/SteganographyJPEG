@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace SteganographyJPEG
@@ -88,17 +88,27 @@ namespace SteganographyJPEG
         {
             try
             {
+                int key;
+                
+                if (!int.TryParse(textBoxGetEncodeKey.Text, out key))
+                {
+                    throw new Exception("Ошибка при вводе ключа!");
+                }
+                
+                key = Int32.Parse(textBoxGetEncodeKey.Text);
+
                 Transformation = new SteganoTransformation();
                 ContainerForEncode.InitBlocks(8, 8);
                 ContainerForEncode.InitBlueComponent(8, 8);
-                Transformation.Encode(ContainerForEncode, InputMessage, 2);
+                Transformation.Encode(ContainerForEncode, InputMessage, key);
                 ContainerForEncode.InsertBlueComponent(8, 8);
-                ContainerForEncode.TestWriteImage(8, 8);
-                //MessageBox.Show("Анта бака!\nНо все хорошо!\n" + ContainerForEncode.FilePath + InputMessage.FilePath, "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ContainerForEncode.SaveImage(8, 8, "encode_output.jpg");
+                
+                MessageBox.Show("Успешно!\nФайл находится в директории:\n" + Directory.GetCurrentDirectory(), "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception excptn)
             {
-                MessageBox.Show("Анта бака!\nОшибка при кодировании!\n" + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Анта бака!\nОшибка при кодировании!\n" + excptn.Message + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -106,15 +116,27 @@ namespace SteganographyJPEG
         {
             try
             {
+                int key;
+                
+                if (!int.TryParse(textBoxGetDecodeKey.Text, out key))
+                {
+                    throw new Exception("Ошибка при вводе ключа!");
+                }
+                
+                key = Int32.Parse(textBoxGetDecodeKey.Text);
+                
                 Transformation = new SteganoTransformation();
+                OutputMessage = new SteganoMessage();
                 ContainerForDecode.InitBlocks(8, 8);
                 ContainerForDecode.InitBlueComponent(8, 8);
-                var test = Transformation.Decode(ContainerForDecode, 2);
-                //MessageBox.Show("Анта бака!\nНо все хорошо!\n" + ContainerForDecode.FilePath, "ОК", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Transformation.Decode(ContainerForDecode, OutputMessage, key);
+                OutputMessage.SaveMessage("decode_output.txt");
+                
+                MessageBox.Show("Успешно!\nФайл находится в директории:\n" + Directory.GetCurrentDirectory(), "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception excptn)
             {
-                MessageBox.Show("Анта бака!\nОшибка при декодировании!\n" + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Анта бака!\nОшибка при декодировании!\n" + excptn.Message + excptn.StackTrace, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
