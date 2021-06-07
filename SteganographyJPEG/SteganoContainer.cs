@@ -32,16 +32,18 @@ namespace SteganographyJPEG
                 {
                     Rectangle cloneRect = new Rectangle((int)column, (int)row, (int)weight, (int)height);
                     PixelFormat format = Image.PixelFormat;
-                    Bitmap cloneBitmap = Image.Clone(cloneRect, format);
-                    Color[,] buf = new Color[height, weight];
-                    for (uint i = 0; i < height; i++)
+                    using (Bitmap cloneBitmap = Image.Clone(cloneRect, format))
                     {
-                        for (uint k = 0; k < weight; k++)
+                        Color[,] buf = new Color[height, weight];
+                        for (uint i = 0; i < height; i++)
                         {
-                            buf[i, k] = cloneBitmap.GetPixel((int)k, (int)i);
+                            for (uint k = 0; k < weight; k++)
+                            {
+                                buf[i, k] = cloneBitmap.GetPixel((int)k, (int)i);
+                            }
                         }
+                        Blocks.Add(buf);
                     }
-                    Blocks.Add(buf);
                 }
             }
         }
@@ -78,6 +80,26 @@ namespace SteganographyJPEG
                 Blocks[counter] = buf;
             }
         }
+        
+        public void SaveBitmap(uint height, uint weight)// block params
+        {
+            var count = 0;
+            for (uint row = 0; row < Image.Height; row += height)
+            {
+                for (uint  column = 0; column < Image.Width; column += weight)
+                {
+                    Color[,] buf = Blocks[count];
+                    for (uint i = 0; i < height; i++)
+                    {
+                        for (uint k = 0; k < weight; k++)
+                        {
+                            Image.SetPixel((int)(k + column), (int)(i + row), buf[i, k]);
+                        }
+                    }
+                    count++;
+                }
+            }
+        }
 
         public void SaveImage(uint height, uint weight, string filename)// block params
         {
@@ -98,6 +120,7 @@ namespace SteganographyJPEG
                 }
             }
             Image.Save(Directory.GetCurrentDirectory() + "/" + filename, ImageFormat.Bmp);
+            Image.Dispose();
         }
     }
 }

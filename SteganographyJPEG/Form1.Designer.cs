@@ -222,7 +222,7 @@
         private System.Windows.Forms.TextBox textBoxGetDecodeKey;
 
         private System.Windows.Forms.Label labelEncodeKeyName;
-        private System.Windows.Forms.TextBox textBoxGetEncodeKey;
+        public System.Windows.Forms.TextBox textBoxGetEncodeKey;
 
         private System.Windows.Forms.Button buttonGetMessage;
         private System.Windows.Forms.Button buttonEncode;

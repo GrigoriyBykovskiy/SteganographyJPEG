@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Forms;
 
 namespace SteganographyJPEG
 {
@@ -15,7 +14,7 @@ namespace SteganographyJPEG
         public int v1 = 4;
         public int u2 = 5;
         public int v2 = 5;
-        public int P = 250; //Порог изменения коэффициентов
+        //public int P = 250; //Порог изменения коэффициентов
 
         public string GetBinaryStringFromUInt32(UInt32 value)
         {
@@ -59,7 +58,7 @@ namespace SteganographyJPEG
 
             return data;
         }
-        public void Encode(SteganoContainer container, SteganoMessage steganoMessage, int key)
+        public void Encode(SteganoContainer container, SteganoMessage steganoMessage, int key, int P)
         {
             if (steganoMessage.Size + 32 > container.Blocks.Count)
             {

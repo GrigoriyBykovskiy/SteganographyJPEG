@@ -6,11 +6,17 @@ namespace SteganographyJPEG
 {
     public partial class Form1 : Form
     {
-        public SteganoContainer ContainerForEncode;
-        public SteganoContainer ContainerForDecode;
-        public SteganoMessage InputMessage;
-        public SteganoMessage OutputMessage;
-        public SteganoTransformation Transformation;
+        public string ContainerForEncode;
+        public string ContainerForDecode;
+        public string InputMessage;
+
+        public int EncodeKey;
+        public int DecodeKey;
+        // public SteganoContainer ContainerForEncode;
+        // public SteganoContainer ContainerForDecode;
+        // public SteganoMessage InputMessage;
+        // public SteganoMessage OutputMessage;
+        // public SteganoTransformation Transformation;
         public Form1()
         {
             InitializeComponent();
@@ -26,13 +32,13 @@ namespace SteganographyJPEG
             var filePath = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "TXT files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.Filter = "All files (*.*)|*.*|Image files (*.jpg, *.jpeg, *.jpe, *.png) | *.jpg; *.jpeg; *.jpe; *.png|TXT files (*.txt)|*.txt";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
                         filePath = openFileDialog.FileName;
-                        InputMessage = new SteganoMessage(filePath);
+                        InputMessage = filePath;
                     }
                     catch (Exception excptn)
                     {
@@ -47,13 +53,13 @@ namespace SteganographyJPEG
             var filePath = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "JPEG files (*.jpg)|*.jpg|All files (*.*)|*.*";
+                openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.png, *.bmp) | *.jpg; *.jpeg; *.jpe; *.png; *.bmp|All files (*.*)|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
                         filePath = openFileDialog.FileName;
-                        ContainerForEncode = new SteganoContainer(filePath);
+                        ContainerForEncode = filePath;
                     }
                     catch (Exception excptn)
                     {
@@ -68,13 +74,13 @@ namespace SteganographyJPEG
             var filePath = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "BMP files (*.bmp)|*.bmp|All files (*.*)|*.*";
+                openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.png, *.bmp) | *.jpg; *.jpeg; *.jpe; *.png; *.bmp|All files (*.*)|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
                         filePath = openFileDialog.FileName;
-                        ContainerForDecode = new SteganoContainer(filePath);
+                        ContainerForDecode = filePath;
                     }
                     catch (Exception excptn)
                     {
@@ -89,20 +95,21 @@ namespace SteganographyJPEG
             try
             {
                 int key;
-                
                 if (!int.TryParse(textBoxGetEncodeKey.Text, out key))
                 {
                     throw new Exception("Ошибка при вводе ключа!");
                 }
                 
-                key = Int32.Parse(textBoxGetEncodeKey.Text);
+                EncodeKey = Int32.Parse(textBoxGetEncodeKey.Text);
 
-                Transformation = new SteganoTransformation();
-                ContainerForEncode.InitBlocks(8, 8);
-                ContainerForEncode.InitBlueComponent(8, 8);
-                Transformation.Encode(ContainerForEncode, InputMessage, key);
-                ContainerForEncode.InsertBlueComponent(8, 8);
-                ContainerForEncode.SaveImage(8, 8, "encode_output.jpg");
+                SteganoTransformation transformation = new SteganoTransformation();
+                SteganoContainer container = new SteganoContainer(ContainerForEncode);
+                SteganoMessage message = new SteganoMessage(InputMessage);
+                container.InitBlocks(8, 8);
+                container.InitBlueComponent(8, 8);
+                transformation.Encode(container, message, EncodeKey, 250);
+                container.InsertBlueComponent(8, 8);
+                container.SaveImage(8, 8, "encode_output.bmp");
                 
                 MessageBox.Show("Успешно!\nФайл находится в директории:\n" + Directory.GetCurrentDirectory(), "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -116,21 +123,21 @@ namespace SteganographyJPEG
         {
             try
             {
-                int key;
-                
-                if (!int.TryParse(textBoxGetDecodeKey.Text, out key))
+
+                if (!int.TryParse(textBoxGetDecodeKey.Text, out DecodeKey))
                 {
                     throw new Exception("Ошибка при вводе ключа!");
                 }
                 
-                key = Int32.Parse(textBoxGetDecodeKey.Text);
+                DecodeKey = Int32.Parse(textBoxGetDecodeKey.Text);
                 
-                Transformation = new SteganoTransformation();
-                OutputMessage = new SteganoMessage();
-                ContainerForDecode.InitBlocks(8, 8);
-                ContainerForDecode.InitBlueComponent(8, 8);
-                Transformation.Decode(ContainerForDecode, OutputMessage, key);
-                OutputMessage.SaveMessage("decode_output.txt");
+                SteganoTransformation transformation = new SteganoTransformation();
+                SteganoContainer container = new SteganoContainer(ContainerForDecode);
+                SteganoMessage outputMessage = new SteganoMessage();
+                container.InitBlocks(8, 8);
+                container.InitBlueComponent(8, 8);
+                transformation.Decode(container, outputMessage, DecodeKey);
+                outputMessage.SaveMessage("decode_output.txt");
                 
                 MessageBox.Show("Успешно!\nФайл находится в директории:\n" + Directory.GetCurrentDirectory(), "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
